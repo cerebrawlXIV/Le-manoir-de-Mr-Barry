@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Le manoir de Mr Barry</title>
+    <script src="https://kaboomjs.com/lib/0.6.0/kaboom.js"></script>
+    <script type="module">
+        kaboom({
+	        global: true,
+            scale: 1.3,
+            fullscreen: true,
+            clearColor: [0, 0, 0, 1],
+        });
+
+        /* sprite loading */
+        loadSprite("background", "assets/sprites/background.png");
+        loadSprite("manor", "assets/sprites/manor.png");
+
+        loadSprite("ground", "assets/sprites/ground.png");
+        loadSprite("ground-left", "assets/sprites/ground-left.png");
+        loadSprite("ground-right", "assets/sprites/ground-right.png");
+
+        loadSprite("wall-left", "assets/sprites/wall-left.png");
+        loadSprite("wall-right", "assets/sprites/wall-right.png");
+
+        loadSprite("door", "assets/sprites/door.png");
+        loadSprite("door-light-close", "assets/sprites/doorlightclose.png");
+        loadSprite("door-light-open", "assets/sprites/doorlightopen.png");
+
+        loadSprite("platform", "assets/sprites/platform.png");
+
+        loadSprite("wood", "assets/sprites/wood.png");
+
+        loadSprite("window", "assets/sprites/window.png");
+        loadSprite("dark-window", "assets/sprites/darkwindow.png");
+        loadSprite("chandelier", "assets/sprites/chandelier.png");
+        loadSprite("chandelier2", "assets/sprites/chandelier2.png");
+        loadSprite("cabinet", "assets/sprites/cabinet.png");
+        loadSprite("close-sink", "assets/sprites/close-sink.png");
+        loadSprite("open-sink", "assets/sprites/open-sink.png");
+        loadSprite("chain", "assets/sprites/chain.png");
+        loadSprite("rock", "assets/sprites/rock.png");
+        loadSprite("sewer", "assets/sprites/sewer.png");
+
+        loadSprite("ghost", "assets/sprites/ghost.png");
+        loadSprite("redghost", "assets/sprites/redghost.png");
+        loadSprite("ghostboss", "assets/sprites/ghostboss.png");
+
+        loadSprite("key", "assets/sprites/key.png");
+
+        /* sound loading */ 
+        loadSound("manor", "assets/sound/manor1.mp3");
+        loadSound("manor2", "assets/sound/manor2.mp3");
+        loadSound("boss", "assets/sound/boss.mp3");
+
+        loadSound("jump", "assets/sound/jump.mp3");
+        loadSound("bossjump", "assets/sound/boss-jump.mp3");
+        loadSound("teleportation", "assets/sound/teleportation.mp3");
+        loadSound("click", "assets/sound/click.mp3");
+        loadSound("destruction", "assets/sound/destruction.mp3");
+        loadSound("key", "assets/sound/key.mp3");
+
+        scene("main", (levelIdx) => {
+
+            if(levelIdx == 0){
+                const backgroundSound = play("manor", {volume: 0.04, loop: true});
+            } else if(levelIdx == 3){
+                const backgroundSound = play("manor2", {volume: 0.15, loop: true});
+            };
+           
+            /* map management */
+            layers([
+                "bg",
+                "game",
+                "ui",
+            ], "game");
+
+            camIgnore([ "ui", ]);
+            const levels = [
+                [
+                    "l____________________________________________________________________r",
+                    "l               V                              V                     r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l    A                A      f          A                A           r",
+                    "l                        =========                                   r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                             H      f               r",
+                    "l           ==============         =========        ====            /d",
+                    "l                                                                   /d",
+                    "l                                                                   /d",
+                    "l                                                                   /d",
+                    "l       g                            1   f                        g /d",
+                    "<====================================================================>",
+                ],
+                [
+                    "l____________________________________________________________________r",
+                    "l               V                              V                     r",
+                    "lf                                                                   r",
+                    "l=                                                                   r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l    A                A                A                A            r",
+                    "l=                                                                   r",
+                    "l                                                         f          r",
+                    "l              ==           ==          ==          ========         r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l=                     ==                                            r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                                         ==        =r",
+                    "l                                                                    r",
+                    "l==                =======                                           r",
+                    "l    A                A             == A            ==  A            r",
+                    "l                                                                    r",
+                    "l                                            ==                      r",
+                    "l                                                                    r",
+                    "l         H    ===                                                   r",
+                    "l                             g      1    g                         /d",
+                    "l                              ===========                          /d",
+                    "l                              r         l                          /d",
+                    "l                              r                                    /d",
+                    "l                              rgf           2    g                 /d",
+                    "<====================================================================>",
+                ],
+                [
+                    "l___________________________________________________________________________________________________________________________________________________________r",
+                    "l               V                            r V                 l              V                              V                    l        V             fr",
+                    "l                                            r                   l                                                                  l                       r",
+                    "l                                            r                   l                                                                  l                       r",
+                    "l                                            r                   lf                                                                 l                       r",
+                    "l                                            r                   <==g       -       g       +       g                               lg      3        3     gr",
+                    "l                                            r                                                                           =========  <======  =========  ==  r",
+                    "l                                            r                                                                                                           l  r",
+                    "l                                           fr                                                        g       -       g                                  l  r",
+                    "l    A                A                A ====>           A                A                A                A                A  g          -   A        g<==r",
+                    "l                                                                                                                                                           r",
+                    "l                                                                                   g       +       g                                                       r",
+                    "l                                 ====                       2                                                                                              r",
+                    "l             ==g     H           -+                    g=========g       -       g            H                                  H                         r",
+                    "l                                                                                                                                                          /d",
+                    "l         ==                                                                                                                                               /d",
+                    "l                                                                                                                                                          /d",
+                    "l                                                                                                                                                          /d",
+                    "l                              g                                    111                                                  g                                 /d",
+                    "<===========================================================================================================================================================>",
+                ],
+                [
+                    "l____________________________________________________________________r",
+                    "lf               v                              v                    r",
+                    "l                                                                    r",
+                    "l                                         f                          r",
+                    "l           xxxx   xx   x   xxxxxxxxxxxx  xxxxxxxx                  /d",
+                    "l                                                                   /d",
+                    "l                                                                   /d",
+                    "l                                                                   /d",
+                    "l    a                a                 a                a          /d",
+                    "lxx      x                                                         ==r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                                                                    r",
+                    "l                 l__________________________  ____________________  r",
+                    "l                 l           V                        V             r",
+                    "l                 l                                                  r",
+                    "l                 l                                                  r",
+                    "l                 l                     a                           =r",
+                    "<=================l                                                  r",
+                    "                  l g12g   g2 3g   4   g1 3g    g31g   f  g2 1g    4 r",
+                    "                  <==================================================r",
+                ],   
+            ]; 
+            
+            addLevel(levels[levelIdx], {
+                width: 40,    
+                height: 40,
+                
+                "l": [
+                    sprite("wall-left"),
+                    solid(),
+                    "wall",
+                ],
+                "r": [
+                    sprite("wall-right"),
+                    solid(),
+                    "wall",
+                ],
+                "d": [
+                    sprite("door"),
+                    layer("game"),
+                    solid(),
+                    "door",
+                    "wall",
+                ],
+                "/": [
+                    sprite("door-light-close"),
+                    "doorlight",
+                ],
+                "=": [
+                    sprite("ground"),
+                    solid(),
+                ],
+                "<": [
+                    sprite("ground-left"),
+                    solid(),
+                ],
+                ">": [
+                    sprite("ground-right"),
+                    solid(),
+                ],
+                "_": [
+                    sprite("wood"),
+                    solid(),
+                ],
+                "A": [
+                    sprite("window"),
+                    layer("background"),
+                ],
+                "a": [
+                    sprite("dark-window"),
+                    layer("background"),
+                ],
+                "V": [
+                    sprite("chandelier"),
+                    scale(2),
+                    layer("background"),
+                ],
+                "v": [
+                    sprite("chandelier2"),
+                    scale(2),
+                    layer("background"),
+                ],
+                "H": [
+                    sprite("cabinet"),
+                    scale(1.5),
+                    layer("background"),
+                ],
+                "f": [
+                    sprite("key"),
+                    layer("game"),
+                    "key",
+                ],
+                "1": [
+                    sprite("redghost"), 
+                    layer("game"),
+                    scale(1),
+                    area(),
+                    origin('center'), 
+                    "redghost",
+                    { dir: -1 },
+                ],
+                "2": [
+                    sprite("redghost"), 
+                    layer("game"),
+                    scale(1),
+                    area(),
+                    origin('center'), 
+                    "redghost",
+                    { dir: -1 },
+                ],
+                "3": [
+                    sprite("redghost"), 
+                    layer("game"),
+                    scale(1),
+                    area(),
+                    origin('center'), 
+                    "redghost",
+                    { dir: -1 },
+                ],
+                "4": [
+                    sprite("redghost"), 
+                    layer("game"),
+                    scale(1),
+                    area(),
+                    origin('center'), 
+                    "dancingghost",
+                    { dir: -1 },
+                ],
+                "g": [
+                    sprite("background"),
+                    layer("game"),
+                    "limit",
+                ],
+                "-": [
+                    sprite("platform"),
+                    layer("game"),
+                    solid(),
+                    "platform",
+                    { dir: -1},   
+                ],
+                "+": [
+                    sprite("platform"),
+                    layer("game"),
+                    solid(),
+                    "platform",
+                    { dir: 1},   
+                ],
+                "x": [
+                    sprite("background"),
+                    layer("game"),
+                    solid(),
+                ]
+            });
+
+            /* ennemy management */
+            action("redghost", (r) => {
+                r.move(r.dir * 80, 0);
+            });
+
+            collides("redghost", "limit", (r) => {
+                r.dir = -r.dir;
+                if(r.dir > 0){
+                    r.scale.x = -1;
+                } else if(r.dir < 0){
+                    r.scale.x = 1;
+                };
+            });
+
+            action("dancingghost", (r) => {
+                loop(5, () => {
+                    r.dir = -r.dir;
+                    if(r.dir > 0){
+                        r.scale.x = -1;
+                    } else if(r.dir < 0){
+                        r.scale.x = 1;
+                    };
+                });
+            });
+
+            /* platform management */
+            action("platform", (p) => {
+                p.move(p.dir * 120, 0);
+            });
+
+            collides("platform", "limit", (p) => {
+                p.dir = -p.dir;
+            });
+
+            /* adding player */
+            const player = add([
+                sprite("ghost"),
+                pos(160, 500),
+                layer("game"),
+                area(),
+                origin("center"),
+                scale(1),
+                body(),
+            ]);
+
+            /* key management */
+            let numberOfKeys = 0;
+            let openDoor = false;
+
+            player.collides("key", (key) => {
+                destroy(key);
+                play("key", {volume: 0.2});
+                numberOfKeys++;
+                if(numberOfKeys === 3){
+                    openDoor = true;
+                };
+            });
+
+            /* player movement and action*/
+            const JUMP_FORCE = 650;
+            const MOVE_SPEED = 300;
+
+            keyPress("space", () => {
+                if (player.grounded()) {
+                    player.jump(JUMP_FORCE);
+                    let jump = play("jump");
+                    jump.volume(1.2);
+                };
+            })
+
+            keyDown("q", () => {
+                player.move(-MOVE_SPEED, 0);
+                player.scale.x = -1;
+            });
+
+            keyDown("d", () => {
+                player.move(MOVE_SPEED, 0);
+                player.scale.x = 1;
+            });
+
+            keyDown("left", () => {
+                player.move(-MOVE_SPEED, 0);
+                player.scale.x = -1;
+            });
+
+            keyDown("right", () => {
+                player.move(MOVE_SPEED, 0);
+                player.scale.x = 1;
+            });
+
+            player.action(() => {
+                camPos(player.pos);
+            });
+
+            /* display number of keys */
+            const displayKeys = add([
+                text("0", 30),
+                pos(50, 60),
+                layer("ui"),
+                color(255, 255, 0),
+            ]);
+
+            displayKeys.action(() => {
+                displayKeys.text = `${numberOfKeys}`;
+            });
+            
+            /* check number of keys */
+            player.collides("door", () => {
+                if (openDoor) {
+                    if (levelIdx + 1 < levels.length) {
+                        go("main", levelIdx + 1);
+                    } else {
+                        go("boss");
+                    };
+                }; 
+            });
+
+            /* door light management */
+            render("doorlight", (d) => {
+                if(openDoor){
+                    d.changeSprite("door-light-open");
+                };
+            });
+            
+            /* check collide with ennemy */
+            player.collides("redghost", () => {
+                go("death");
+            });
+
+            player.collides("dancingghost", () => {
+                go("death");
+            });
+        });
+
+        scene("boss", () => {
+
+            layers([
+                "bg",
+                "game",
+                "ui",
+            ], "game")
+
+            const level = addLevel([
+                "l____________________________________________________________________r",
+                "l               V                              V       H             r",
+                "l                                                                    r",
+                "l                                                   O                r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l    a                a                a                a            r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                                    r",
+                "l                                                             n      r",
+                "<====================================================================>",
+                "                                                                      ",
+                "                                                                      ",
+                "                                                                      ",
+                "     o                              o                            o    ",
+                "                                                                      ",
+                "                                                                      ",
+                "                                                                      ",
+                "                                                                      ",
+                "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+           ], {
+                width: 40,    
+                height: 40,  
+
+                "l": [
+                    sprite("wall-left"),
+                    solid(),
+                    "wall",
+                ],
+                "r": [
+                    sprite("wall-right"),
+                    solid(),
+                    "wall",
+                ],
+                "=": [
+                    sprite("ground"),
+                    solid(),
+                    "ground",
+                ],
+                "<": [
+                    sprite("ground-left"),
+                    solid(),
+                ],
+                ">": [
+                    sprite("ground-right"),
+                    solid(),
+                ],
+                "_": [
+                    sprite("wood"),
+                    solid(),
+                ],
+                "a": [
+                    sprite("dark-window"),
+                    layer("background"),
+                ],
+                "V": [
+                    sprite("chandelier"),
+                    scale(2),
+                    layer("background"),
+                ],
+                "n": [
+                    sprite("close-sink"),
+                    scale(1.5),
+                    layer("game"),
+                    origin("center"),
+                    "sink"
+                ],
+                "H": [
+                    sprite("chain"),
+                    scale(1.5),
+                    layer("game"),
+                    "chain",
+                ],
+                "o": [
+                    sprite("sewer"),
+                    scale(1.5),
+                    layer("game"),
+                ],
+                "O": [
+                    sprite("rock"),
+                    scale(1.5),
+                    layer("game"),
+                    "rock",   
+                ],
+                "x": [
+                    sprite("background"),
+                    layer("game"),
+                    "deathzone",
+                ]
+           }); 
+
+           /* adding player */
+           const player = add([
+                sprite("ghost"),
+                pos(160, 500),
+                layer("game"),
+                area(),
+                origin("center"),
+                scale(1),
+                body(),
+            ]);
+
+            /* player movement and action*/
+            const JUMP_FORCE = 650;
+            const MOVE_SPEED = 300;
+
+            keyPress("space", () => {
+                if (player.grounded()) {
+                    player.jump(JUMP_FORCE);
+                    let jump = play("jump");
+                    jump.volume(0.8);
+                };
+            });
+
+            keyDown("q", () => {
+                player.move(-MOVE_SPEED, 0);
+                player.scale.x = -1;
+            });
+
+            keyDown("d", () => {
+                player.move(MOVE_SPEED, 0);
+                player.scale.x = 1;
+            });
+
+            keyDown("left", () => {
+                player.move(-MOVE_SPEED, 0);
+                player.scale.x = -1;
+            });
+
+            keyDown("right", () => {
+                player.move(MOVE_SPEED, 0);
+                player.scale.x = 1;
+            });
+
+            player.action(() => {
+                camPos(player.pos);
+            });
+
+            /* adding boss */
+            const ghostboss = add([
+                sprite("ghostboss"),
+                pos(1500, 500),
+                layer("game"),
+                origin("center"),
+                scale(1),
+                area(),
+                body({
+                    jumpForce: 640,
+                    maxVel: 2400,
+                }),
+                "boss",
+            ]);
+
+            /* boss management */ 
+            ghostboss.action(() => {
+                let playerPos = player.pos.x;
+                let bossPos = ghostboss.pos.x;
+                let distance;
+                if(playerPos < bossPos){
+                    ghostboss.scale.x = 1;
+                    distance = bossPos - playerPos;
+                    if(ghostboss.grounded() && (distance > 200 && distance < 400) && ghostboss.pos.x < 2020){
+                        let bossJump = play("bossjump");
+                        bossJump.volume(1)
+                        ghostboss.jump();
+                    }
+                } else if(playerPos > bossPos){
+                    ghostboss.scale.x = -1;
+                    distance = playerPos - bossPos;
+                    if(distance > 400 && bossPos < 2000){
+                        let sprintDistance = bossPos + 800;
+                        while(ghostboss.pos.x < sprintDistance){
+                            let teleportation = play("teleportation");
+                            teleportation.volume(0.01);
+                            ghostboss.move(400, 0);
+                        };
+                    };
+                };
+
+                if(distance > 0 && distance < 700){
+                    if(ghostboss.scale.x == 1){
+                        ghostboss.move(-120, 0);
+                    } else if(ghostboss.scale.x == -1){
+                        ghostboss.move(120, 0);
+                    };  
+                };
+            });
+
+            /* check collide with ennemy */
+            player.collides("boss", () => {
+                go("death");
+            });
+
+            /* check collide with deco */
+            let sink = false;
+
+            player.collides("sink", () => {
+                sink = true;
+                let click = play("click");
+                click.volume(8);
+                action("rock", (r) => {
+                    r.move(0, 400);
+                });
+            });
+
+            player.collides("deathzone", () => {
+                go("death");
+            });
+
+            ghostboss.collides("deathzone", () => {
+                go("win");
+            });
+
+            render("sink", (s) => {
+                if(sink){
+                    s.changeSprite("open-sink");
+                };
+            });
+
+            collides("ground", "rock", (r) => {
+                r.destroy();
+                let destruction = play("destruction");
+                destruction.volume(2);
+            });
+        });
+        scene("menu", () => {
+            /* background */
+            add([
+                sprite("manor", {width: width(), height: height()}),
+            ]);
+
+            /* button management */
+            let playButton = document.getElementById("button");
+            let container = document.querySelector("#menu-container");
+            playButton.addEventListener("click", (e) => {
+                go("main", (0));
+                document.body.style.cursor = "none";
+                container.style.display = "none";
+            });
+        });
+
+        scene("win", () => {
+            /* text management */
+            let container = document.querySelector("#congratulation-container");
+            container.style.display = "flex";
+
+            /* ghost decoration */
+            let leftGhost = add([
+                sprite("ghost"),
+                pos(width() / 2 / 2 * 3, height() / 2),
+                origin("center"),
+                scale(3),
+            ]);
+            leftGhost.scale.x = -3;
+
+
+            let rightGhost = add([
+                sprite("ghost"),
+                pos(width() / 2 / 2, height() / 2),
+                origin("center"),
+                scale(3),
+            ]);
+
+            wait(10, () => {
+                /* go("menu"); */ // !!! loop music problem with this method !!!
+                location.reload(); // temporal solution to solve the problem
+            });
+        });
+
+        scene("death", () => {
+            /* text management */
+            let container = document.querySelector("#death-container");
+            container.style.display = "flex";
+
+            /* ghost decoration */
+            let leftGhost = add([
+                sprite("redghost"),
+                pos(width() / 2 / 2, height() / 2),
+                origin("center"),
+                scale(3),
+            ]);
+            leftGhost.scale.x = -3;
+
+
+            let rightGhost = add([
+                sprite("redghost"),
+                pos(width() / 2 / 2 * 3, height() / 2),
+                origin("center"),
+                scale(3),
+            ]);
+
+            wait(3, () => {
+                /* go("menu"); */ // !!! loop music problem with this method !!!
+                location.reload(); // temporal solution to solve the problem
+            });
+        });
+
+        go("menu");
+    </script>
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Play:wght@700&display=swap');
+        @font-face {
+            font-family: "horror";
+            src: url("/assets/font/OhTheHorror.ttf") format("truetype");
+        }
+
+        body{
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        div{
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #death-container, #congratulation-container{
+            display: none;
+        }
+
+        h1{
+            font-family: "horror";
+            font-size: 45px;
+            position: absolute;
+            top: 60px;
+        }
+
+        #button{
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid orange;
+            width: 200px;
+            height: 60px;
+            font-size: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: orange;
+            font-family: "Play";
+            margin-top: 450px;
+            border-radius: 5px;
+        }
+
+        #button:hover{
+            background-color: rgba(0, 0, 0, 0.9);
+            cursor: pointer;
+            transition-duration: 200ms;
+        }
+
+        #death{
+            color: rgb(187, 3, 3);
+            font-family: "horror";
+            font-size: 60px;
+        }
+
+        #congratulation{
+            color: rgb(255, 255, 255);
+            font-family: "horror";
+            font-size: 50px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id='menu-container'>
+        <h1>Mr barry's mansion</h1>
+        <p id='button'>PLAY</p>
+    </div>
+    <div id='death-container'>
+        <p id='death'>Death</p>
+    </div>
+    <div id='congratulation-container'>
+        <p id='congratulation'>Congratulation</p>
+    </div>
+</body> 
+</html>
